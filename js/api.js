@@ -9,24 +9,30 @@
       )
   }
 
-
+// button
 const  display = (categories)=>{
 
        categories.forEach(item => {
 
-
+    
+          
         // creat button
         let bannerBtn = document.getElementById('banner_btn');
-        let makeButton  =  document.createElement('button');
-        makeButton.innerText =  item.category;
-         makeButton.className = `
+        let makeButtonDiv  =  document.createElement('div');
+        makeButtonDiv.innerHTML =  `
+              <button  class = "btn" onclick = 'catagoryVedios(${item.category_id})'>
+              ${item.category}
+              </button>
+        `
+
+         makeButtonDiv.className = `
             btn ml-4 mt-8    
          `
          
 
-         bannerBtn.append(makeButton);
+         bannerBtn.append(makeButtonDiv);
 
-
+// item.category
 
         
        });
@@ -34,10 +40,21 @@ const  display = (categories)=>{
 }
 
 const loadVedios = () =>{
+ 
+    
     fetch('https://openapi.programming-hero.com/api/phero-tube/videos')
     .then(responseVedios => responseVedios.json())
     .then(getVedios => displayVedios(getVedios.videos))
     .catch(err => console.log(err))
+}
+
+
+const catagoryVedios = (id) =>{
+
+  fetch(`https://openapi.programming-hero.com/api/phero-tube/category/${id}`)
+  .then(getResponseVedios => getResponseVedios.json())
+  .then(getData => displayVedios(getData.category))
+  .catch(err => console.log(err))
 }
 
 
@@ -68,30 +85,66 @@ const loadVedios = () =>{
 */
 
 const displayVedios = (showVedios) =>{
+
+
+       
+  const  vedioSection =  document.getElementById('ph_tube_vedios');
+  vedioSection.innerHTML = ''
+
          showVedios.forEach(showVedio => {
 
-            console.log(showVedio.authors[0].profile_picture);
-            
-      
-          
-            const  vedioSection =  document.getElementById('ph_tube_vedios');
-       
+
             
             const card = document.createElement('div');
              card.className = `card card-compact bg-base-100 w-full h-4/5 shadow-xl `;
+
+
+            let remainingHour = parseInt(showVedio.others.posted_date / 3600) ;
+          
+            let remainingSecond = parseInt(showVedio.others.posted_date % 3600) ;
+
+            let remainingMinit = parseInt(remainingSecond / 60)
+            
+
              card.innerHTML =  
              `
-                 <figure class = "h-[300px]">
+            
+                 <figure class = "h-[300px] relative">
     <img class = "w-full h-full  object-cover "
       src="${showVedio.thumbnail}"
       alt="Shoes" />
+
+
+      
+     ${showVedio.others.posted_date.length === 0 ?  "" : ` <div class=" absolute bg-black text-white p-1 right-2  bottom-2">
+                ${remainingHour} hour ${remainingMinit} minit ago
+
+                </div>`}
+         
+    
+
+
   </figure>
+
+
+
   <div class="mx-3 my-2 flex justify-between">
                 <img class =" w-14 h-14  rounded-full " src="${showVedio.authors[0].profile_picture}" alt="profile picture">
 
                  <div class="card-details">
           <h1 class =" text-xl font-bold">  ${showVedio.title} </h1>
+
+       <div class="varify flex">
+    
           <p> ${showVedio.authors[0].profile_name}</p>
+
+            ${showVedio.authors[0].verified === true? `<img class =" w-5 h-5 " src="https://img.icons8.com/?size=48&id=70yRC8npwT3d&format=png" alt="varification symbol">` : ""}
+
+
+    </div>
+
+
+         
           <p>${showVedio.others.views}</p>
     </div>
   </div> 
